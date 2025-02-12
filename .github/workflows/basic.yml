@@ -60,7 +60,7 @@ jobs:
       - name: get more pkgs
         run: (Rscript -e "BiocManager::install(c('tximeta', 'tximportData', 'readr', 'pasilla', 'glmGamPoi'))")
       - name: get more pkgs by source
-        run: (Rscript -e "BiocManager::install(c('tximportData'), type='source')")
+        run: (Rscript -e "BiocManager::install(c('tximportData','airway'), type='source')")
       - name: look at pkgs
         run: (Rscript -e 'print(sort(rownames(installed.packages())))')
       - name: do r cmd check
