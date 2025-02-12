@@ -56,7 +56,7 @@ jobs:
       - name: view DESCRIPTION
         run: (cat DESCRIPTION)
       - name: get dependencies based on bioc source code (allowing alternate name in test repo)
-        run: (Rscript -e "BiocManager::install(c(basename(getwd()), ref='RELEASE_3_20'), dependencies=TRUE, update=FALSE, Ncpus=2)")
+        run: (Rscript -e "BiocManager::install(basename(getwd()), ref='RELEASE_3_20', dependencies=c("Depends", "Imports", "LinkingTo", "Suggests"), update=TRUE, Ncpus=2)")
       - name: look at pkgs
         run: (Rscript -e 'print(sort(rownames(installed.packages())))')
       - name: do r cmd check
