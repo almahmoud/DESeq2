@@ -6,23 +6,13 @@
 #
 # focus is on RELEASE_3_20 so that r2u/bioc2u binaries are available
 #
-# As of 10am 12 feb 2025 the associated Dockerfile is
-# FROM rocker/r2u
-# 
-# RUN apt update
-# RUN apt install -y texinfo git vim qpdf
-# RUN apt install -y libcurl4-openssl-dev
-# # for rcmdcheck via curl
-# RUN apt install -y zlib1g-dev
-# # for qpdf
-# RUN apt install -y libssl-dev
-# # for httr -> UCSC.utils -> GenomeInfoDb -> GRanges -> SE
-# RUN apt install -y libxml2-dev libpng-dev liblzma-dev libbz2-dev
-# # for tximeta, Rhtslib, XML, etc.
-# # might as well install pandoc and avoid doing it in action?
-# RUN apt install -y pandoc
-# 
-# RUN Rscript -e "install.packages(c('BiocManager', 'BiocCheck', 'BiocStyle', 'knitr', 'rmarkdown', 'rcmdcheck', 'tinytex', 'qpdf'), update=TRUE, ask=FALSE)"
+# As of 2pm 13 feb 2025 the associated Dockerfile is
+# FROM ghcr.io/bioconductor/bioc2u-user:jammy-bioc-3.20
+# ENV BIOC_VERSION="3.20"
+# RUN Rscript -e "BiocManager::install(version='$BIOC_VERSION', update=TRUE, ask=FALSE)"
+# RUN Rscript -e "BiocManager::install(c('devtools'))"
+
+# RUN Rscript -e "BiocManager::install(c('BiocCheck', 'BiocStyle', 'knitr', 'rmarkdown', 'rcmdcheck', 'tinytex', 'qpdf'), update=TRUE, ask=FALSE)"
 # RUN Rscript -e "library(tinytex); tinytex::install_tinytex(); tinytex::tlmgr_install('courier')"
 # ENV PATH="$PATH:/root/.TinyTeX/bin/x86_64-linux"
 
@@ -34,8 +24,7 @@ jobs:
   container-test-job:
     runs-on: ubuntu-latest
     container:
-      image: vjcitn/jisochk:0.0.1
-# using bioc2u in 0.0.1
+      image: ghcr.io/almahmoud/biocisocheck:main
       env:
         NODE_ENV: development
       options: --cpus 2
