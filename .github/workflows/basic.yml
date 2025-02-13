@@ -33,8 +33,8 @@ jobs:
   container-test-job:
     runs-on: ubuntu-latest
     container:
-      image: vjcitn/isochk:0.0.7
-# using r2u in 0.0.7
+      image: vjcitn/jisochk:0.0.1
+# using bioc2u in 0.0.1
       env:
         NODE_ENV: development
       options: --cpus 2
@@ -57,10 +57,10 @@ jobs:
         run: (cat DESCRIPTION)
       - name: get dependencies based on bioc source code (allowing alternate name in test repo)
         run: (Rscript -e "BiocManager::install(basename(getwd()), ref='RELEASE_3_20', dependencies=c('Depends', 'Imports', 'LinkingTo', 'Suggests'), update=TRUE, Ncpus=2)")
-      - name: get more pkgs
-        run: (Rscript -e "BiocManager::install(c('tximeta', 'tximportData', 'readr', 'pasilla', 'glmGamPoi'))")
-      - name: get more pkgs by source
-        run: (Rscript -e "BiocManager::install(c('tximportData'), type='source')")
+#      - name: get more pkgs
+#        run: (Rscript -e "BiocManager::install(c('tximeta', 'tximportData', 'readr', 'pasilla', 'glmGamPoi'))")
+#      - name: get more pkgs by source
+#        run: (Rscript -e "BiocManager::install(c('tximportData'), type='source')")
       - name: look at pkgs
         run: (Rscript -e 'print(sort(rownames(installed.packages())))')
       - name: do r cmd check
