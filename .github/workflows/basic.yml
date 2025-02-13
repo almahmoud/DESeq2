@@ -62,6 +62,8 @@ jobs:
         run: (Rscript -e "BiocManager::install(c('tximeta', 'tximportData', 'readr', 'pasilla', 'glmGamPoi'))")
       - name: get more pkgs by source
         run: (Rscript -e "BiocManager::install(c('tximportData', 'airway', 'apeglm', 'ashr', 'vsn', 'pheatmap'), type='source')")
+      - name: get even more pkgs by source
+        run: (Rscript -e "BiocManager::install(c('pbapply'), type='source')")
       - name: look at pkgs
         run: (Rscript -e 'print(sort(rownames(installed.packages())))')
       - name: do r cmd check
