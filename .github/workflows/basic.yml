@@ -20,6 +20,7 @@ name: CI4bioc320
 on:
   push:
     branches: [ REL_3_20_ISO ]
+  workflow_dispatch:
 jobs:
   container-test-job:
     runs-on: ubuntu-latest
