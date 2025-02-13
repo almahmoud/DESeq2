@@ -1,4 +1,4 @@
-# trying bioc2u oriented container
+# trying bioc2u oriented container, added pandoc-citeproc
 # important element is REL_3_20_ISO in ref below
 #
 # this assumes that a source package in github has the unlikely
