@@ -1,0 +1,112 @@
+name: Docker image
+
+on:
+  push:
+    branches:
+      - devel
+      - RELEASE_*
+    paths:
+      - DESCRIPTION
+      - .github/docker/**
+      - .github/workflows/docker-image.yml
+  schedule:
+    # Rebuild weekly so the image keeps up with its moving base tag.
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      bioconductor_tag:
+        description: Tag of ghcr.io/bioconductor/bioconductor to build on. Defaults to the branch name.
+        required: false
+        type: string
+
+concurrency:
+  group: docker-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build and push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the package
+        uses: actions/checkout@v4
+
+      - name: Reclaim runner disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/share/powershell /usr/local/share/boost \
+            /usr/local/lib/node_modules "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}"
+          df -h /
+
+      - name: Resolve image references
+        id: refs
+        env:
+          REQUESTED_TAG: ${{ inputs.bioconductor_tag }}
+        run: |
+          tag="${REQUESTED_TAG:-$GITHUB_REF_NAME}"
+          if ! printf '%s' "$tag" | grep -qE '^[A-Za-z0-9][A-Za-z0-9._-]*$'; then
+            echo "::error::'$tag' is not a usable image tag."
+            exit 1
+          fi
+          {
+            echo "base=ghcr.io/bioconductor/bioconductor:$tag"
+            echo "image=ghcr.io/$(printf '%s' "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Confirm the base image exists
+        env:
+          BASE: ${{ steps.refs.outputs.base }}
+        run: |
+          if ! docker manifest inspect "$BASE" > /dev/null; then
+            echo "::error::$BASE is not published. Pass a bioconductor_tag input to override the branch name."
+            exit 1
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push the image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .github/docker/Dockerfile
+          push: true
+          provenance: false
+          build-args: |
+            BIOCONDUCTOR_TAG=${{ steps.refs.outputs.tag }}
+          tags: |
+            ${{ steps.refs.outputs.image }}:${{ steps.refs.outputs.tag }}
+            ${{ steps.refs.outputs.image }}:${{ steps.refs.outputs.tag }}-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.refs.outputs.tag }}
+          cache-from: type=registry,ref=${{ steps.refs.outputs.image }}:${{ steps.refs.outputs.tag }}
+          cache-to: type=inline
+
+      - name: Summarise
+        env:
+          IMAGE: ${{ steps.refs.outputs.image }}:${{ steps.refs.outputs.tag }}
+          BASE: ${{ steps.refs.outputs.base }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          {
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Image | \`$IMAGE\` |"
+            echo "| Base | \`$BASE\` |"
+            echo "| Digest | \`$DIGEST\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
