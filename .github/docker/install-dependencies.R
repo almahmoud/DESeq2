@@ -11,6 +11,8 @@ options(
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager", repos = "https://cloud.r-project.org")
+if (!requireNamespace("BiocJobs", quietly = TRUE))
+    BiocManager::install("almahmoud/BiocJobs", quiet = TRUE)
 
 ## A dependency the base image already carries at a new enough version does not
 ## need reinstalling.
