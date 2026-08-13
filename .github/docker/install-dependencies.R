@@ -11,6 +11,8 @@ options(
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager", repos = "https://cloud.r-project.org")
+if (!requireNamespace("remotes", quietly = TRUE))
+    BiocManager::install("remotes", quiet = TRUE)
 if (!requireNamespace("BiocJobs", quietly = TRUE))
     BiocManager::install("almahmoud/BiocJobs", quiet = TRUE)
 
