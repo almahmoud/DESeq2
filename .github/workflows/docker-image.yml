@@ -5,10 +5,6 @@ on:
     branches:
       - devel
       - RELEASE_*
-    paths:
-      - DESCRIPTION
-      - .github/docker/**
-      - .github/workflows/docker-image.yml
   schedule:
     # Rebuild weekly so the image keeps up with its moving base tag.
     - cron: '17 5 * * 1'

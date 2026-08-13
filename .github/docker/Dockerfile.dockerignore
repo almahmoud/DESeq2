@@ -1,0 +1,8 @@
+# Repository plumbing and build leftovers have no place in the image. Note that
+# .github is deliberately kept: the Dockerfile copies its installation scripts
+# from there.
+.git
+.gitignore
+**/*.o
+**/*.so
+**/.DS_Store
